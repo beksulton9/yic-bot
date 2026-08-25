@@ -245,8 +245,18 @@ async def cmd_stat(message: types.Message):
             f"⏳ Kutilayotganlar: {total - accepted - rejected}"
         )
 
-async def main():
-    await dp.start_polling(bot)
+
+import os
+from aiohttp import web
+
+async def handle(request):
+    return web.Response(text="Bot is active")
+
+app = web.Application()
+app.router.add_get("/", handle)
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    import asyncio
+    loop = asyncio.get_event_loop()
+    loop.create_task(dp.start_polling(bot))
+    web.run_app(app, host="0.0.0.0", port=int(os.environ.get("PORT", 8080)))
