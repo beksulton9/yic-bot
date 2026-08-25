@@ -247,16 +247,21 @@ async def cmd_stat(message: types.Message):
 
 
 import os
+import asyncio
 from aiohttp import web
 
 async def handle(request):
     return web.Response(text="Bot is active")
 
-app = web.Application()
-app.router.add_get("/", handle)
+async def main():
+    app = web.Application()
+    app.router.add_get("/", handle)
+    runner = web.AppRunner(app)
+    await runner.setup()
+    site = web.TCPSite(runner, "0.0.0.0", int(os.environ.get("PORT", 8080)))
+    await site.start()
+    
+    await dp.start_polling(bot)
 
 if __name__ == "__main__":
-    import asyncio
-    loop = asyncio.get_event_loop()
-    loop.create_task(dp.start_polling(bot))
-    web.run_app(app, host="0.0.0.0", port=int(os.environ.get("PORT", 8080)))
+    asyncio.run(main())
